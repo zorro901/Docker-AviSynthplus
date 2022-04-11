@@ -529,7 +529,7 @@ RUN     set -xe && \
         DIR=/tmp/avisynth && \
         mkdir -p ${DIR} && \
         cd ${DIR} && \
-        git clone --depth 1 -b ${AVISYNTHPLUS_VERSION} git://github.com/AviSynth/AviSynthPlus.git && \
+        git clone --depth 1 -b ${AVISYNTHPLUS_VERSION} https://github.com/AviSynth/AviSynthPlus.git && \
         cd AviSynthPlus && \
         mkdir avisynth-build && \
         cd avisynth-build && \
