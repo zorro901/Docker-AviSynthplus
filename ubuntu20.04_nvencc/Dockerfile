@@ -602,7 +602,7 @@ RUN     set -xe && \
         DIR=/tmp/ffms2 && \
         mkdir -p ${DIR} && \
         cd ${DIR} && \
-        git clone --depth 1 git://github.com/ffms/ffms2.git && \
+        git clone --depth 1 https://github.com/ffms/ffms2.git && \
         cd ffms2 && \
         PKG_CONFIG_PATH=${PREFIX}/lib/pkgconfig \
         CPPFLAGS="-I${SRC}/include/avisynth" \
