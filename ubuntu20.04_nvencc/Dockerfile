@@ -598,18 +598,18 @@ RUN \
         make qt-faststart && cp qt-faststart ${PREFIX}/bin/
 
 #FFMS2
-RUN     set -xe && \
-        DIR=/tmp/ffms2 && \
-        mkdir -p ${DIR} && \
-        cd ${DIR} && \
-        git clone --depth 1 https://github.com/ffms/ffms2.git && \
-        cd ffms2 && \
-        PKG_CONFIG_PATH=${PREFIX}/lib/pkgconfig \
-        CPPFLAGS="-I${SRC}/include/avisynth" \
-        ./autogen.sh --enable-shared --enable-avisynth && \
-        make -j$(nproc) && \
-        make install && \
-        rm -rf ${DIR}
+#RUN     set -xe && \
+#        DIR=/tmp/ffms2 && \
+#        mkdir -p ${DIR} && \
+#        cd ${DIR} && \
+#        git clone --depth 1 https://github.com/ffms/ffms2.git && \
+#        cd ffms2 && \
+#        PKG_CONFIG_PATH=${PREFIX}/lib/pkgconfig \
+#        CPPFLAGS="-I${SRC}/include/avisynth" \
+#        ./autogen.sh --enable-shared --enable-avisynth && \
+#        make -j$(nproc) && \
+#        make install && \
+#        rm -rf ${DIR}
 
 # l-smash-source
 RUN     set -xe && \
