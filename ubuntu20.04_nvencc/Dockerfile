@@ -632,10 +632,22 @@ RUN \
         cp -r ${PREFIX}/share/ffmpeg /usr/local/share/ && \
         LD_LIBRARY_PATH=/usr/local/lib ffmpeg -buildconf
 
+
+RUN       DEBIAN_FRONTEND=noninteractive apt-get -y  install \
+          libavcodec-extra libavcodec-dev libavutil-dev libavformat-dev libswresample-dev libavfilter-dev \
+          libass9 libass-dev libavcodec-extra58 libavformat58 libavfilter7 libchromaprint1 fontconfig libpango-1.0-0 librsvg2-common libpangoft2-1.0-0 libpangocairo-1.0-0 libchromaprint1
+
+
+ARG NVENCC_VER="5.46"
+RUN set -xe && \
+    curl -OL https://github.com/rigaya/NVEnc/releases/download/${NVENCC_VER}/nvencc_${NVENCC_VER}_Ubuntu20.04_amd64.deb && \
+    dpkg -i ./nvencc_${NVENCC_VER}_Ubuntu20.04_amd64.deb
+
+
 # release image
 FROM        base AS release
 MAINTAINER  Tobitti <mail@tobitti.net>
 ENV         LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64:/usr/lib:/usr/lib64:/lib:/lib64
 COPY        --from=build /usr/local /usr/local
 CMD         ["--help"]
-ENTRYPOINT  ["ffmpeg"]
+ENTRYPOINT  ["nvencc"]
