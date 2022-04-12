@@ -567,7 +567,7 @@ RUN \
         --enable-libvidstab \
         --enable-libmp3lame \
         --enable-libopus \
-        --enable-libtheora \
+#        --enable-libtheora \
         --enable-libvorbis \
         --enable-libvpx \
         --enable-libwebp \
@@ -629,6 +629,10 @@ RUN     set -xe && \
         ninja install && \
         rm -rf ${DIR}
 
+# NVEncC が依存する NVENC ライブラリにシンボリックリンクを付与
+RUN ln -s /usr/lib/x86_64-linux-gnu/libnvcuvid.so.1 /usr/lib/x86_64-linux-gnu/libnvcuvid.so
+RUN ln -s /usr/lib/x86_64-linux-gnu/libnvidia-encode.so.1 /usr/lib/x86_64-linux-gnu/libnvidia-encode.so
+
 # cleanup
 RUN \
         ldd ${PREFIX}/bin/ffmpeg | grep opt/ffmpeg | cut -d ' ' -f 3 | xargs -i cp {} /usr/local/lib/ && \
@@ -650,9 +654,9 @@ RUN set -xe && \
 
 
 # release image
-FROM        base AS release
-MAINTAINER  Tobitti <mail@tobitti.net>
-ENV         LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64:/usr/lib:/usr/lib64:/lib:/lib64
-COPY        --from=build /usr/local /usr/local
-CMD         ["--help"]
-ENTRYPOINT  ["nvencc"]
+#FROM        base AS release
+#MAINTAINER  Tobitti <mail@tobitti.net>
+#ENV         LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64:/usr/lib:/usr/lib64:/lib:/lib64
+#COPY        --from=build /usr/local /usr/local
+#CMD         ["--help"]
+#ENTRYPOINT  ["nvencc"]
