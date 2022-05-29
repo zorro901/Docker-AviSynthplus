@@ -95,6 +95,18 @@ RUN         buildDeps="autoconf \
                         libavcodec-dev \
                         libavformat-dev \
                         libswscale-dev \
+                        libdrm-dev \
+                        i965-va-driver-shaders \
+                        xorg \
+                        xorg-dev \
+                        openbox \
+                        libxv1 \
+                        libx11-dev \
+                        libx11-xcb-dev \
+                        libxcb-dri3-dev \
+                        libgl1-mesa-glx \
+                        libgl1-mesa-dev \
+                        libwayland-dev \
                         zlib1g-dev" && \
             apt-get install -yq --no-install-recommends ${buildDeps} && \
             pip3 install --upgrade pip setuptools && \
@@ -257,8 +269,11 @@ RUN \
         curl -sLO https://downloads.xiph.org/releases/theora/libtheora-${THEORA_VERSION}.tar.gz && \
         echo ${THEORA_SHA256SUM} | sha256sum --check && \
         tar -zx --strip-components=1 -f libtheora-${THEORA_VERSION}.tar.gz && \
-        ./configure --prefix="${PREFIX}" --with-ogg="${PREFIX}" --enable-shared && \
+        ./autogen.sh && \
+        sed -i 's/png_\(sizeof\)/\1/g' examples/png2theora.c && \
+        ./configure --prefix="${PREFIX}" --with-ogg="${PREFIX}" --enable-shared --disable-static && \
         make && \
+        make check && \
         make install && \
         rm -rf ${DIR}
 ### libvpx https://www.webmproject.org/code/ 1.11.0 on 8 Oct 2021
@@ -379,7 +394,6 @@ RUN  \
         make && \
         make install && \
         rm -rf ${DIR}
-
 ## harfbuzz 4.3.0 2022/5/21
 RUN  \
         DIR=/tmp/harfbuzz && \
@@ -391,7 +405,6 @@ RUN  \
         make && \
         make install && \
         rm -rf ${DIR}
-
 ## libass https://github.com/libass/libass 0.16.0 2022/5/13
 RUN  \
         DIR=/tmp/libass && \
@@ -417,7 +430,6 @@ RUN \
         make && \
         make install && \
         rm -rf ${DIR}
-
 ## Open Media https://aomedia.googlesource.com/aom/+/refs/tags/v3.3.0 Tue Feb 15 17:10:54 2022
 RUN \
         DIR=/tmp/aom && \
@@ -430,7 +442,6 @@ RUN \
         make ; \
         make install ; \
         rm -rf ${DIR}
-
 ## libxcb (and supporting libraries) for screen capture https://xcb.freedesktop.org/ 1.19.3 2021-01-24 14:41
 RUN \
         DIR=/tmp/xorg-macros && \
@@ -442,7 +453,6 @@ RUN \
         make && \
         make install && \
         rm -rf ${DIR}
-
 ## xproto 7.0.31 2016-09-23 06:50
 RUN \
         DIR=/tmp/xproto && \
@@ -454,7 +464,6 @@ RUN \
         make && \
         make install && \
         rm -rf ${DIR}
-
 ## libXau 1.0.9 2019-02-10 22:46
 RUN \
         DIR=/tmp/libXau && \
@@ -466,7 +475,6 @@ RUN \
         make && \
         make install && \
         rm -rf ${DIR}
-
 ## libpthread-stubs 0.4 2017-03-14 17:55
 RUN \
         DIR=/tmp/libpthread-stubs && \
@@ -478,7 +486,6 @@ RUN \
         make && \
         make install && \
         rm -rf ${DIR}
-
 ## xcb-proto-1.15.tar.xz 2022-05-03 20:47
 RUN \
         DIR=/tmp/libxcb-proto && \
@@ -491,7 +498,6 @@ RUN \
         make && \
         make install && \
         rm -rf ${DIR}
-
 ## libxcb-1.15.tar.gz 2022-05-03 22:17
 RUN \
         DIR=/tmp/libxcb && \
@@ -504,7 +510,6 @@ RUN \
         make && \
         make install && \
         rm -rf ${DIR}
-
 ## libxml2 - for libbluray https://gitlab.gnome.org/GNOME/libxml2/-/releases 2.9.14 2022/6/17
 RUN \
         DIR=/tmp/libxml2 && \
@@ -517,7 +522,6 @@ RUN \
         make && \
         make install && \
         rm -rf ${DIR}
-
 ## libbluray - Requires libxml, freetype, and fontconfig libbluray-1.3.1.tar.bz2 03-Mar-2022 17:47
 RUN \
         DIR=/tmp/libbluray && \
@@ -530,7 +534,6 @@ RUN \
         make && \
         make install && \
         rm -rf ${DIR}
-
 ## libzmq https://github.com/zeromq/libzmq/ 4.3.4 17 Jan 2021
 RUN \
         DIR=/tmp/libzmq && \
@@ -545,7 +548,6 @@ RUN \
 #        make check && \
         make install && \
         rm -rf ${DIR}
-
 ## libsrt https://github.com/Haivision/srt 1.4.4 04 Oct 2021
 RUN \
         DIR=/tmp/srt && \
@@ -557,7 +559,6 @@ RUN \
         make && \
         make install && \
         rm -rf ${DIR}
-
 ## libpng 1.6.37 2019-04-14
 RUN \
         DIR=/tmp/png && \
@@ -568,7 +569,6 @@ RUN \
         make check && \
         make install && \
         rm -rf ${DIR}
-
 ## libaribb24 1.0.3 19 Aug 2014
 RUN \
         DIR=/tmp/b24 && \
@@ -582,7 +582,82 @@ RUN \
         make && \
         make install && \
         rm -rf ${DIR}
-
+RUN \
+    DIR=/tmp/libva && \
+    mkdir -p ${DIR} && \
+    cd ${DIR} && \
+    git clone https://github.com/intel/libva && \
+    cd libva && \
+    ./autogen.sh && \
+    ./configure && \
+    make -j$(nproc) VERBOSE=1 && \
+    make -j$(nproc) install && \
+    rm -rf ${DIR}
+RUN \
+    DIR=/tmp/cmrt && \
+    mkdir -p ${DIR} && \
+    cd ${DIR} && \
+    git clone https://github.com/intel/cmrt && \
+    cd cmrt && \
+    ./autogen.sh && \
+    ./configure && \
+    make -j$(nproc) VERBOSE=1 && \
+    make -j$(nproc) install && \
+    rm -rf ${DIR}
+RUN \
+    DIR=/tmp/intel-vaapi-driver && \
+    mkdir -p ${DIR} && \
+    cd ${DIR} && \
+    git clone https://github.com/intel/intel-vaapi-driver && \
+    cd intel-vaapi-driver && \
+    ./autogen.sh && \
+    ./configure && \
+    make -j$(nproc) VERBOSE=1 && \
+    make -j$(nproc) install && \
+    rm -rf ${DIR}
+RUN \
+    DIR=/tmp/libva-utils && \
+    mkdir -p ${DIR} && \
+    cd ${DIR} && \
+    git clone https://github.com/intel/libva-utils && \
+    cd libva-utils && \
+    ./autogen.sh && \
+    ./configure && \
+    make -j$(nproc) VERBOSE=1 && \
+    make -j$(nproc) install && \
+    rm -rf ${DIR}
+# gmmlibのインストール
+RUN cd /tmp && \
+        git clone https://github.com/intel/gmmlib && \
+        cd gmmlib && \
+        mkdir build && cd build && \
+        cmake -DCMAKE_BUILD_TYPE= Release -DARCH=64 ../ && \
+        make && \
+        make install
+# Intel-Media-Driverのインストール
+RUN cd /tmp && \
+        git clone https://github.com/intel/media-driver && \
+        mkdir build_media && cd build_media && \
+        cmake ../media-driver && \
+        make -j"$(nproc)" && \
+        make install
+# Intel-Media-Driverで生成されたライブラリをffmpegで使用するために移動
+RUN cd /tmp && \
+    mkdir -p /usr/local/lib/dri && \
+    cp /tmp/build_media/media_driver/iHD_drv_video.so /usr/local/lib/dri/
+# Intel-Media-SDKのインストール
+RUN cd /tmp && \
+        git clone https://github.com/Intel-Media-SDK/MediaSDK msdk && \
+        cd msdk && \
+        git submodule init && \
+        git pull && \
+        mkdir -p /tmp/build_msdk && cd /tmp/build_msdk && \
+        cmake -DCMAKE_BUILD_TYPE=Release -DENABLE_WAYLAND=ON -DENABLE_X11_DRI3=ON -DENABLE_OPENCL=ON  ../msdk && \
+        make && \
+        make install && \
+        echo '/opt/intel/mediasdk/lib' > /etc/ld.so.conf.d/imsdk.conf && \
+        exit && \
+        ldconfig
 ## ffmpeg https://ffmpeg.org/
 RUN  \
         DIR=/tmp && mkdir -p ${DIR} && cd ${DIR} && \
@@ -630,6 +705,11 @@ RUN  \
         --extra-libs=-lpthread \
         --enable-libsrt \
         --enable-libaribb24 \
+        --enable-debug=3 \
+        --enable-vaapi \
+        --extra-cflags="-I/opt/intel/mediasdk/include" \
+        --extra-ldflags="-L/opt/intel/mediasdk/lib" \
+        --extra-ldflags="-L/opt/intel/mediasdk/plugins" \
         --extra-cflags="-I${PREFIX}/include" \
         --extra-ldflags="-L${PREFIX}/lib" && \
         make -j`nproc` && \
@@ -653,7 +733,17 @@ RUN     set -xe && \
         make -j$(nproc) && \
         make install && \
         rm -rf ${DIR}
-
+RUN cp /usr/lib/x86_64-linux-gnu/libXv.so.1 /usr/local/lib/
+RUN cp /usr/lib/x86_64-linux-gnu/libXv.so.1.0.0 /usr/local/lib/
+RUN cp /usr/lib/x86_64-linux-gnu/libX11.so.6 /usr/local/lib/
+RUN cp /usr/lib/x86_64-linux-gnu/libXext.so.6 /usr/local/lib/
+RUN cp /usr/lib/x86_64-linux-gnu/libdrm.so.2 /usr/local/lib/
+RUN cp /usr/lib/x86_64-linux-gnu/libXfixes.so.3 /usr/local/lib/
+RUN cp /usr/lib/x86_64-linux-gnu/libXdmcp.so.6 /usr/local/lib/
+RUN cp /usr/lib/x86_64-linux-gnu/libbrotlidec.so.1 /usr/local/lib/
+RUN cp /usr/lib/x86_64-linux-gnu/libbsd.so.0 /usr/local/lib/
+RUN cp /usr/lib/x86_64-linux-gnu/libbrotlicommon.so.1 /usr/local/lib/
+RUN cp /usr/lib/x86_64-linux-gnu/libmd.so.0 /usr/local/lib/
 # cleanup
 RUN \
         ldd ${PREFIX}/bin/ffmpeg | grep opt/ffmpeg | cut -d ' ' -f 3 | xargs -i cp {} /usr/local/lib/ && \
@@ -669,3 +759,4 @@ ENV         LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64:/usr/lib:/usr/lib64:
 COPY        --from=build /usr/local /usr/local
 CMD         ["--help"]
 ENTRYPOINT  ["ffmpeg"]
+RUN ffmpeg -h
