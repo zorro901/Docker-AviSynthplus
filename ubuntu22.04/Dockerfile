@@ -759,4 +759,3 @@ ENV         LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64:/usr/lib:/usr/lib64:
 COPY        --from=build /usr/local /usr/local
 CMD         ["--help"]
 ENTRYPOINT  ["ffmpeg"]
-RUN ffmpeg -h
